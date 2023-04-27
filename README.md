@@ -8,7 +8,7 @@ Find an in-depth discussion of surprise similarity definition and results [here]
 ## Installation 
 Get started with:
 ```
-python -m pip install surprise
+python -m pip install surprise-similarity
 ```
 
 ## Use
@@ -81,19 +81,69 @@ documents      dog
  puppyish 0.904361
  ```
 ### Classification
-Please see the notebook surprise/similarity/notebooks/few_shot_classification.ipynb for full details on how to use the SurpriseSimilarity class to fine-tune and perform a few-shot classification experiment on the `Yahoo! Answers` dataset.
+The surprise-score encapsulates the contextual element of human perception and significantly improves the classification performance on
+zero- and few-shot document classification tasks relative to pure cosine similarity and other popular methods. In the table below we show a zero-shot comparison for several datasets using several underlying embedding models.  One can see that the surprise-similarity consistently outperforms a pure cosine-similarity classifier, as well as the [SetFit](https://github.com/huggingface/setfit) pipeline.
+<p align="center">
+<img src="./assets/zero_shot_results.png" alt="app-screen" width="700" />
+</p>
+Furthermore, this performance persists in the few-shot scenario as shown below:
+<p align="center">
+<img src="./assets/few_shot_results_bal.png" alt="app-screen" width="1100" />
+</p>
+All of the above results (and more!) are discussed in full detail [here](http://arxiv.org).
+
+
+To get started for yourself, check out the quick-start instructions below.  For more detail, please see the notebook surprise/similarity/notebooks/few_shot_classification.ipynb which steps through how to use the SurpriseSimilarity class to fine-tune and perform a few-shot classification experiment on the `Yahoo! Answers` dataset.
+
+Start by getting your dataset and assembling two lists of input samples and their corresponding (text) labels:
+```
+from datasets import load_dataset
+import random
+ds = load_dataset("yahoo_answers_topics")
+df_train = ds["train"].to_pandas()
+df_test = ds["test"].to_pandas()
+
+# We need to map the integer label to its corresponding text:
+# e.g. 1 --> 'Science & Mathematics'
+int_to_text_target = {
+    i: v
+    for i, v in enumerate(ds["train"].features['topic'].names)
+}
+label_set = list(int_to_text_target.values())
+test_targets = [
+    int_to_text_target[i] for i in df_test['topic']
+]
+test_input_output = list(zip(df_test["question_title"].to_list(), test_targets))
+
+train_targets = [
+    int_to_text_target[i] for i in df_train['topic']
+]
+train_input_output = list(zip(df_train["question_title"].to_list(), train_targets))
+
+# Here we randomly grab 50 samples, which would be 5 samples per label if balanced.
+# Surprise-similarity performs well even on unbalanced training sets.
+train_unbalanced_few_shot = random.sample(train_input_output, 50)
+```
 
 The essentials for fine-tuning are:
 ```
 from surprise_similarity import SurpriseSimilarity
 ss = SurpriseSimilarity()
-samples = <list of strings to be classified>
-labels = <corresponding list of strings to apply to samples>
-ss.train(keys=samples, queries=labels)
+ss.train(
+    keys=[item[0] for item in train_unbalanced_few_shot],
+    queries=[item[1] for item in train_unbalanced_few_shot],
+)
 ```
 This will fine-tune the classifier, which can then be used for prediction via:
 ```
-test_samples = <list of samples to run inference on>
-possible_labels = <list of unique labels that can be assigned>
-predictions = ss.predict(keys=test_samples, queries=possible_labels)
+from sklearn.metrics import f1_score, accuracy_score
+predictions = ss.predict(
+    keys=[item[0] for item in test_input_output],
+    queries=list(set([item[1] for item in test_input_output])),
+)
+f1_result = f1_score([it[1] for it in test_input_output], predictions, average="weighted", zero_division=0)
+acc_result = accuracy_score([it[1] for it in test_input_output], predictions)
+print("F1 score: ", f1_result)
+print("Accuracy score: ", acc_result)
 ```
+For this dataset we get around 65% for both accuracy and F1 score.
