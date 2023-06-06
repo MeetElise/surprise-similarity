@@ -6,7 +6,7 @@ README_txt = (Path(__file__).parent / "README.md").read_text(encoding="utf-8")
 requirements = [
     "datasets>=2.3.2",
     "scikit-learn>=1.0",
-    "english_words>=1.1.0",
+    "english_words==1.1.0",
     "sentence_transformers>=2.2.2",
     "pandas>=1.4.1",
 ]
