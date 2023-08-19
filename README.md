@@ -8,7 +8,7 @@ Find an in-depth discussion of surprise similarity definition and results [here]
 ## Installation 
 Get started with:
 ```
-python -m pip install surprise-similarity
+python -m pip install surprise_similarity
 ```
 
 ## Use
