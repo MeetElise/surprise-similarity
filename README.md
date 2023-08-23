@@ -3,7 +3,7 @@
 The surprise similarity takes advantage of contextual information to produce a similarity score for embedded objects that more closely mirrors human perception.  Substituting the surprise similarity for common similarity scores (e.g. cosine similarity) has proven to improve results in NLP classification and clustering tasks. Furthermore we use an effective and efficient procedure for fine-tuning sentence-transformer models; we have found this to be valuable in many practical scenarios, e.g. few-shot classification, clustering, and document ranking/retrieval.
 
 ## The paper: 
-Find an in-depth discussion of surprise similarity definition and results [here](http://arxiv.org).
+Find an in-depth discussion of surprise similarity definition and results [here](https://arxiv.org/abs/2308.09765).
 
 ## Installation 
 Get started with:
@@ -90,8 +90,7 @@ Furthermore, this performance persists in the few-shot scenario as shown below:
 <p align="center">
 <img src="./assets/few_shot_results_bal.png" alt="app-screen" width="1100" />
 </p>
-All of the above results (and more!) are discussed in full detail [here](http://arxiv.org).
-
+All of the above results (and more!) are discussed in full detail here: https://arxiv.org/abs/2308.09765.
 
 To get started for yourself, check out the quick-start instructions below.  For more detail, please see the notebook surprise/similarity/notebooks/few_shot_classification.ipynb which steps through how to use the SurpriseSimilarity class to fine-tune and perform a few-shot classification experiment on the `Yahoo! Answers` dataset.
 
